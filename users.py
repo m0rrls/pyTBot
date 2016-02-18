@@ -27,3 +27,6 @@ db = sqlite3.connect("sqlite.db")
 cursor = db.cursor()
 cursor.execute('SELECT POINTS FROM POINTS WHERE NICK = \'test\'')
 print cursor.fetchone()
+
+conn.commit()
+db.close()
