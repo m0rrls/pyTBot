@@ -31,17 +31,14 @@ class databaseControl:
 		self.db.commit()
 
 	def addPointsToUser(self, user, points):
-		userPoints = self.getUserPoints(user)
-		print userPoints
-		if userPoints == -1:
-			self.assUser(user)
-			print "dodano do bazy"
-			userPoints = 0
-		userPoints = int(userPoints)
-		userPoints += points
-		self.addPoints(user, userPoints)
-		return "done"
-		
-
-db = databaseControl()
-print db.addPointsToUser("testa", 123)
+		if len(user)>2:
+			userPoints = self.getUserPoints(user)
+			print userPoints
+			if userPoints == -1:
+				self.addUser(user)
+				print "dodano do bazy"
+				userPoints = 0
+			userPoints = int(userPoints)
+			userPoints += points
+			self.addPoints(user, userPoints)
+			return "done"
