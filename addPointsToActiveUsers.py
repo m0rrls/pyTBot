@@ -2,7 +2,6 @@ import requests
 import string
 import sqlite3
 from databaseControl import *
-from bs4 import BeautifulSoup
 from time import *
 
 class addPointsToActiveUsers:
