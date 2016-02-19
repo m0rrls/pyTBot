@@ -13,11 +13,13 @@ class databaseControl:
 		result = str(self.cursor.fetchone())
 		if result == "None":
 			return -1
-		resultOnlyNumbers = 0
+		resultOnlyNumbers = ""
 		for i in result:
 			tmp = ord(str(i))	
-			if tmp>48 and tmp<58:
-				resultOnlyNumbers = resultOnlyNumbers * 10 + int(i)
+			if tmp>47 and tmp<58:
+				print resultOnlyNumbers	
+				resultOnlyNumbers = resultOnlyNumbers + i
+		print resultOnlyNumbers
 		return resultOnlyNumbers
 
 	def addUser(self, user):

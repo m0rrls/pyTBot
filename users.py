@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 
 def addPointsToActiveUsers(db):
-	page = requests.get("https://tmi.twitch.tv/group/user/smarkilive/chatters")
+	page = requests.get("https://tmi.twitch.tv/group/user/yarakii/chatters")
 	page = page.content
 	lines = string.split(page, "\n")
 	control = 0
