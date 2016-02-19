@@ -1,6 +1,8 @@
 import socket, string
 from databaseControl import *
 from random import randint
+from time import *
+from multiprocessing import Pool
  
 plik = open("pasy.txt", "r")
 
@@ -18,6 +20,8 @@ s.connect((HOST, PORT))
 s.send("PASS " + PASS + "\r\n")
 s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #yarakii \r\n")
+
+db = databaseControl()	
  
 # Method for sending a message
 def Send_message(message):
@@ -35,7 +39,7 @@ def roulette(user, points):
 	print points
 	if userPoints >= points:
 		rand = randint(0,99)
-		if rand>80:
+		if rand>20:
 			db.addPointsToUser(user, points)
 			return user + " wygral wlasnie " + str(points) + "pktow FeelsGoodMan"
 		else:
@@ -44,19 +48,17 @@ def roulette(user, points):
 	else:
 		return user + " nie ma wystarczajaco punktow FeelsBadMan"
 	
- 
 while True:
 	readbuffer = readbuffer + s.recv(1024)
 	temp = string.split(readbuffer, "\n")
 	readbuffer = temp.pop()
-	db = databaseControl()	
 	for line in temp:
 		print "Wiadomosc z serwera: " + line
-        # Checks whether the message is PING because its a method of Twitch to check if you're afk
+	    # Checks whether the message is PING because its a method of Twitch to check if you're afk
 		if (line[0] == "PING"):
 			s.send("PONG %s\r\n" % line[1])
-        else:
-            # Splits the given string so we can work with it better
+		else:
+	        # Splits the given string so we can work with it better
 			parts = string.split(line, ":") 
 			if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
 				try:
@@ -64,15 +66,15 @@ while True:
 					message = parts[2][:len(parts[2]) - 1]
 				except:
 					message = ""
-                # Sets the username variable to the actual username
+	            # Sets the username variable to the actual username
 				usernamesplit = string.split(parts[1], "!")
 				username = usernamesplit[0]
-               
-                # Only works after twitch is done announcing stuff (MODT = Message of the day)
+	           
+	            # Only works after twitch is done announcing stuff (MODT = Message of the day)
 				if MODT:
 					print username + ": " + message
 					command = string.split(message, " ")
-                    # You can add all your plain commands here
+	                # You can add all your plain commands here
 					if message == "!points":
 						points = getUserPoints(username, db)
 						message = ""
@@ -85,3 +87,10 @@ while True:
 				for l in parts:
 					if "End of /NAMES list" in l:
 						MODT = True
+	sleep(1 / 20/float(30))
+
+
+
+
+
+
