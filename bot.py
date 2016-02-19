@@ -1,12 +1,12 @@
 import socket, string
 from databaseControl import *
+from random import randint
  
 plik = open("pasy.txt", "r")
 
-
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
-NICK = "zarakibot"
+NICK = "botherrington"
 PORT = 6667
 PASS = plik.read()
 readbuffer = ""
@@ -28,6 +28,22 @@ def getUserPoints(user, db):
 	print points
 	return points
 
+def roulette(user, points):
+	points = int(points)
+	userPoints = int(db.getUserPoints(user))
+	print userPoints
+	print points
+	if userPoints >= points:
+		rand = randint(0,99)
+		if rand>80:
+			db.addPointsToUser(user, points)
+			return user + " wygral wlasnie " + str(points) + "pktow FeelsGoodMan"
+		else:
+			db.addPointsToUser(user, points*-1)
+			return user + " przegral wlasnie " + str(points) + "pktow FeelsBadMan"
+	else:
+		return user + " nie ma wystarczajaco punktow FeelsBadMan"
+	
  
 while True:
 	readbuffer = readbuffer + s.recv(1024)
@@ -55,6 +71,7 @@ while True:
                 # Only works after twitch is done announcing stuff (MODT = Message of the day)
 				if MODT:
 					print username + ": " + message
+					command = string.split(message, " ")
                     # You can add all your plain commands here
 					if message == "!points":
 						points = getUserPoints(username, db)
@@ -62,6 +79,8 @@ while True:
 						message = username + " points = " + str(points)
 						Send_message(message)
 						print "wysylam wiadomosc " + message
+					if command[0] == "!roulette":
+						Send_message(roulette(username, command[1]))
  
 				for l in parts:
 					if "End of /NAMES list" in l:
