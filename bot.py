@@ -41,12 +41,12 @@ def roulette(user, points):
 		rand = randint(0,99)
 		if rand>20:
 			db.addPointsToUser(user, points)
-			return user + " wygral wlasnie " + str(points) + "pktow FeelsGoodMan"
+			return user + " just won " + str(points) + " points FeelsGoodMan"
 		else:
 			db.addPointsToUser(user, points*-1)
-			return user + " przegral wlasnie " + str(points) + "pktow FeelsBadMan"
+			return user + " just lost " + str(points) + " points FeelsBadMan"
 	else:
-		return user + " nie ma wystarczajaco punktow FeelsBadMan"
+		return user + " don't have enough points FailFish"
 	
 while True:
 	readbuffer = readbuffer + s.recv(1024)
