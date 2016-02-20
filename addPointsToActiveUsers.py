@@ -19,17 +19,12 @@ class addPointsToActiveUsers:
 				elif control == 1 and "[" not in item and "]" not in item and "{" not in item and "}" not in item:
 					nick = ""
 					for i in item:
-						tmp = ord(i)	
+						tmp = ord(i)
 						if (tmp>96 and tmp<123) or (tmp>47 and tmp<58) or tmp == 95:
 							nick+=i
-					print "Dodaje punkt " + nick
 					db.addPointsToUser(str(nick), 5)
 			if control == 1:
+				print ("===================================")
+				print ("dodano punkty aktywnym uzytkownikom")
+				print ("===================================")
 				return 1
-
-db = databaseControl()
-
-addPoints = addPointsToActiveUsers()
-while True:
-	addPoints.addPoints(db)
-	sleep(60)
