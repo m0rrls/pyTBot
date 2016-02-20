@@ -20,7 +20,7 @@ class addPointsToActiveUsers:
 					nick = ""
 					for i in item:
 						tmp = ord(i)	
-						if (tmp>96 and tmp<123) or (tmp>48 and tmp<58):
+						if (tmp>96 and tmp<123) or (tmp>47 and tmp<58) or tmp == 95:
 							nick+=i
 					print "Dodaje punkt " + nick
 					db.addPointsToUser(str(nick), 5)

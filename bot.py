@@ -27,10 +27,22 @@ db = databaseControl()
 def Send_message(message):
     s.send("PRIVMSG #yarakii :" + message + "\r\n")
 
+def Send_whisper(message):
+	message = "PRIVMSG #jtv /w erroreq AAA"
+	s.send(message)
+
 def getUserPoints(user, db):
 	points = db.getUserPoints(user)
 	print points
 	return points
+
+def ruinedChat():
+	Send_message("AM I RUINING YOUR CHAT EXPERIENCE? EleGiggle")
+	Send_whisper("aa")
+
+"""oddsy na przegrana"""
+rouletteOdds = 50
+
 
 def roulette(user, points):
 	points = int(points)
@@ -39,14 +51,19 @@ def roulette(user, points):
 	print points
 	if userPoints >= points:
 		rand = randint(0,99)
-		if rand>20:
+		if rand>rouletteOdds:
 			db.addPointsToUser(user, points)
 			return user + " just won " + str(points) + " points FeelsGoodMan"
 		else:
 			db.addPointsToUser(user, points*-1)
 			return user + " just lost " + str(points) + " points FeelsBadMan"
 	else:
-		return user + " don't have enough points FailFish"
+		return user + " You don't have enough points FailFish"
+
+def odds():
+	currentOdds = 100-rouletteOdds
+	message = "Current odds to win roulette: " + str(currentOdds)
+	Send_message(message)
 	
 while True:
 	readbuffer = readbuffer + s.recv(1024)
@@ -83,7 +100,10 @@ while True:
 						print "wysylam wiadomosc " + message
 					if command[0] == "!roulette":
 						Send_message(roulette(username, command[1]))
- 
+					if command[0] == "!chat":
+ 						ruinedChat()
+					if command[0] == "!odds":
+ 						odds()
 				for l in parts:
 					if "End of /NAMES list" in l:
 						MODT = True
