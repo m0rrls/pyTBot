@@ -7,6 +7,7 @@ from time import *
 class addPointsToActiveUsers:
 	def addPoints(self, db):
 		control = 0
+		allUsers = 0
 		while control == 0:
 			page = requests.get("https://tmi.twitch.tv/group/user/yarakii/chatters")
 			page = page.content
@@ -23,8 +24,9 @@ class addPointsToActiveUsers:
 						if (tmp>96 and tmp<123) or (tmp>47 and tmp<58) or tmp == 95:
 							nick+=i
 					db.addPointsToUser(str(nick), 5)
+					allUsers += 1
 			if control == 1:
-				print ("===================================")
-				print ("dodano punkty aktywnym uzytkownikom")
-				print ("===================================")
+				print ("========================================================")
+				print ("dodano punkty aktywnym uzytkownikom, jest ich: " + str(allUsers))
+				print ("========================================================")
 				return 1
