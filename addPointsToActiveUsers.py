@@ -4,7 +4,7 @@ import sqlite3
 from databaseControl import *
 from time import *
 
-class addPointsToActiveUsers:
+class AddPointsToActiveUsers:
 	def addPoints(self, db):
 		control = 0
 		allUsers = 0

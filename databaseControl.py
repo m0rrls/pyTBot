@@ -1,12 +1,12 @@
 import sqlite3
 import string
 
-class databaseControl:
-	
+class DatabaseControl:
+
 	def __init__(self):
 		self.db = sqlite3.connect("sqlite.db")
 		self.cursor = self.db.cursor()
-	
+
 	def getUserPoints(self, user):
 		command = 'SELECT POINTS FROM POINTS WHERE NICK = \'' + user + '\';'
 		self.cursor.execute(command)
@@ -15,7 +15,7 @@ class databaseControl:
 			return -1
 		resultOnlyNumbers = ""
 		for i in result:
-			tmp = ord(str(i))	
+			tmp = ord(str(i))
 			if tmp>47 and tmp<58:
 				resultOnlyNumbers = resultOnlyNumbers + i
 		return resultOnlyNumbers
@@ -26,7 +26,7 @@ class databaseControl:
 		self.db.commit()
 
 	def addPoints(self, user, points):
-		command = 'UPDATE POINTS SET POINTS = ' + str(points) + ' WHERE NICK = \'' + user + '\';' 
+		command = 'UPDATE POINTS SET POINTS = ' + str(points) + ' WHERE NICK = \'' + user + '\';'
 		self.cursor.execute(command)
 		self.db.commit()
 
