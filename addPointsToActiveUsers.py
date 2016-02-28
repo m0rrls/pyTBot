@@ -16,7 +16,6 @@ class AddPointsToActiveUsers:
 			for item in lines:
 				if control == 0 and item.find("chatters")!=-1:
 					control = 1
-					print "Zaczynamy"
 				elif control == 1 and "[" not in item and "]" not in item and "{" not in item and "}" not in item:
 					if item.endswith(","):
 						nick = item[7:-2]

@@ -21,8 +21,9 @@ class Bot:
 		self.s.send("NICK " + self.NICK + "\r\n")
 		self.s.send("JOIN #yarakii \r\n")
 		self.rouletteOdds = 50
-		self.duelOdds = 30
+		self.duelOdds = 45
 		self.db = db
+
 		"""oddsy na przegrana"""
 
 
@@ -31,7 +32,7 @@ class Bot:
 		self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
 
 	def Send_whisper(self, message):
-		message = "PRIVMSG #jtv /w erroreq AAA"
+		message = "PRIVMSG #jtv/w erroreq AAA"
 		self.s.send(message)
 
 	def getUserPoints(self, user):
@@ -39,13 +40,28 @@ class Bot:
 		return points
 
 	def ruinedChat(self):
-		self.Send_message("AM I RUINING YOUR CHAT EXPERIENCE? EleGiggle")
-		self.Send_whisper("aa")
+		self.Send_message("SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM")
+
+
+	def legend(self):
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
+		self.Send_message("HE DID IT PogChamp //")
 
 	def roulette(self, user, points):
 		points = int(points)
 		userPoints = int(self.getUserPoints(user))
-		if userPoints >= points:
+		if userPoints >= points and points>0:
 			rand = randint(0,99)
 			if rand>self.rouletteOdds:
 				self.db.addPointsToUser(user, points)
@@ -55,6 +71,10 @@ class Bot:
 				return user + " just lost " + str(points) + " points FeelsBadMan"
 		else:
 			return user + " You don't have enough points FailFish"
+
+	def printCommands(self):
+		message = "Current commands: !points, !roulette <amount>, !duel <user> <amount>, !odds, !userpoints <user>, !chat. Have fun! FeelsGoodMan"
+		self.Send_message(message)
 
 	def duel(self, player1, player2, amount):
 		if int(self.db.getUserPoints(player1)) >= int(amount) and int(self.db.getUserPoints(player2)) >= int(amount):
@@ -80,7 +100,7 @@ class Bot:
 
 	def odds(self):
 		currentOdds = 100-self.rouletteOdds
-		message = "Current odds to win roulette: " + str(currentOdds) + ". Odds for winning duel if you are calling it is "+str(duelOdds)
+		message = "Current odds to win roulette: " + str(currentOdds) + ". Odds for winning duel if you are calling it is "+str(self.duelOdds)
 		self.Send_message(message)
 
 	def mainLoop(self):
@@ -116,7 +136,6 @@ class Bot:
 								message = ""
 								message = username + " points = " + str(points)
 								self.Send_message(message)
-								print "wysylam wiadomosc " + message
 							if command[0] == "!roulette":
 								self.Send_message(self.roulette(username, command[1]))
 							if command[0] == "!chat":
@@ -127,6 +146,10 @@ class Bot:
 		 						self.Send_message(self.duel(username, command[1], command[2]))
 							if command[0] == "!userpoints" and len(command)>1:
 								self.userPoints(command[1])
+							if command[0] == "!commands":
+								self.printCommands()
+							if command[0] == "!legend":
+								self.legend()
 						for l in parts:
 							if "End of /NAMES list" in l:
 								self.MODT = True

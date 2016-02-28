@@ -15,6 +15,7 @@ class CustomConsole(cmd.Cmd):
             self.pid = os.getpid()
             self.bot = Bot(self.db)
             self.bot.mainLoop()
+            print "CRASH GLOWNEGO BOTA"
         else:
             self.pid2 = os.getpid()
             newpid = os.fork()
@@ -24,6 +25,8 @@ class CustomConsole(cmd.Cmd):
                 while True:
                 	addPoints.addPoints(self.db)
                 	sleep(60)
+
+
 
     def do_end(self, args):
         os.kill(self.pid, signal.SIGKILL)

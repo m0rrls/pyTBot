@@ -33,7 +33,6 @@ class DatabaseControl:
 	def addPointsToUser(self, user, points):
 		if len(user)>2:
 			userPoints = self.getUserPoints(user)
-			print userPoints
 			if userPoints == -1:
 				self.addUser(user)
 				print "dodano do bazy"
