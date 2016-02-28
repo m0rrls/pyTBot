@@ -18,15 +18,14 @@ class AddPointsToActiveUsers:
 					control = 1
 					print "Zaczynamy"
 				elif control == 1 and "[" not in item and "]" not in item and "{" not in item and "}" not in item:
-					nick = ""
-					for i in item:
-						tmp = ord(i)
-						if (tmp>96 and tmp<123) or (tmp>47 and tmp<58) or tmp == 95:
-							nick+=i
-					db.addPointsToUser(str(nick), 5)
+					if item.endswith(","):
+						nick = item[7:-2]
+					else:
+						nick = item[7:-1]
+					db.addPointsToUser(nick, 5)
 					allUsers += 1
 			if control == 1:
 				print ("========================================================")
-				print ("dodano punkty aktywnym uzytkownikom, jest ich: " + str(allUsers))
+				print ("dodano punkty aktywnym uzytkownikom, jest ich: " + str(allUsers - 1))
 				print ("========================================================")
 				return 1
