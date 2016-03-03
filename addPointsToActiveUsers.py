@@ -5,8 +5,6 @@ from databaseControl import *
 from time import *
 
 class AddPointsToActiveUsers:
-	def __init__(self):
-		self.db = DatabaseControl()
 	def addPoints(self):
 		self.db = DatabaseControl()
 		while(True):
@@ -25,7 +23,7 @@ class AddPointsToActiveUsers:
 							nick = item[7:-2]
 						else:
 							nick = item[7:-1]
-						db.addPointsToUser(nick, 5)
+						self.db.addPointsToUser(nick, 5)
 						allUsers += 1
 				if control == 1:
 					print ("========================================================")
