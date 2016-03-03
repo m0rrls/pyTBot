@@ -5,7 +5,7 @@ from time import *
 from multiprocessing import Pool
 
 class Bot:
-	def __init__(self, db):
+	def __init__(self):
 		self.plik = open("pasy.txt", "r")
 		# Set all the variables necessary to connect to Twitch IRC
 		self.HOST = "irc.twitch.tv"
@@ -22,7 +22,7 @@ class Bot:
 		self.s.send("JOIN #yarakii \r\n")
 		self.rouletteOdds = 50
 		self.duelOdds = 45
-		self.db = db
+
 
 		"""oddsy na przegrana"""
 
@@ -104,6 +104,7 @@ class Bot:
 		self.Send_message(message)
 
 	def mainLoop(self):
+		self.db = DatabaseControl()
 		while True:
 			self.readbuffer = self.readbuffer + self.s.recv(1024)
 			temp = string.split(self.readbuffer, "\n")
