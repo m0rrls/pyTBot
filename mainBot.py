@@ -15,7 +15,9 @@ class CustomConsole(cmd.Cmd):
         pointsThread = threading.Thread(target=self.addPoints.addPoints,  name='PointsThread')
         pointsThread.daemon = True
         pointsThread.start()
-
+        linksThread = threading.Thread(target=self.bot.infosEvery5Minutes, name='LinksThread')
+        linksThread.daemon = True
+        linksThread.start()
 
 if __name__ == '__main__':
     CustomConsole().cmdloop()
