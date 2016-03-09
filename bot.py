@@ -5,7 +5,7 @@ from time import *
 from multiprocessing import Pool
 
 class Bot:
-	def __init__(self, db):
+	def __init__(self):
 		self.plik = open("pasy.txt", "r")
 		# Set all the variables necessary to connect to Twitch IRC
 		self.HOST = "irc.twitch.tv"
@@ -22,7 +22,7 @@ class Bot:
 		self.s.send("JOIN #yarakii \r\n")
 		self.rouletteOdds = 50
 		self.duelOdds = 45
-		self.db = db
+
 
 		"""oddsy na przegrana"""
 
@@ -42,6 +42,10 @@ class Bot:
 	def ruinedChat(self):
 		self.Send_message("SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM SUPERLONGMESSAGE NaM")
 
+	def infosEvery5Minutes(self):
+		while(True):
+			self.Send_message("g2a.com")
+			sleep(300)
 
 	def legend(self):
 		self.Send_message("HE DID IT PogChamp //")
@@ -58,6 +62,14 @@ class Bot:
 		self.Send_message("HE DID IT PogChamp //")
 		self.Send_message("HE DID IT PogChamp //")
 
+	def addMissplay(self):
+		self.db.addPointsToUser("missplay", 1)
+		self.Send_message("One more? FailFish")
+
+	def checkMissplays(self):
+		points = self.getUserPoints("missplay")
+		self.Send_message("Current missplay counter: " + str(points))
+
 	def roulette(self, user, points):
 		points = int(points)
 		userPoints = int(self.getUserPoints(user))
@@ -73,7 +85,7 @@ class Bot:
 			return user + " You don't have enough points FailFish"
 
 	def printCommands(self):
-		message = "Current commands: !points, !roulette <amount>, !duel <user> <amount>, !odds, !userpoints <user>, !chat. Have fun! FeelsGoodMan"
+		message = "Current commands: !points, !roulette <amount>, !duel <username> <amount>, !odds, !userpoints <user>, !chat, !missplay. Have fun! FeelsGoodMan"
 		self.Send_message(message)
 
 	def duel(self, player1, player2, amount):
@@ -104,6 +116,7 @@ class Bot:
 		self.Send_message(message)
 
 	def mainLoop(self):
+		self.db = DatabaseControl()
 		while True:
 			self.readbuffer = self.readbuffer + self.s.recv(1024)
 			temp = string.split(self.readbuffer, "\n")
@@ -150,7 +163,10 @@ class Bot:
 								self.printCommands()
 							if command[0] == "!legend":
 								self.legend()
+							if command[0] == "!addmissplay" and username == "yarakii":
+								self.addMissplay()
+							if command[0] == "!missplay":
+								self.checkMissplays()
 						for l in parts:
 							if "End of /NAMES list" in l:
 								self.MODT = True
-			sleep(1 / 20/float(30))

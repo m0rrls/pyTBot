@@ -3,34 +3,21 @@ from addPointsToActiveUsers import *
 from bot import *
 import cmd, sys, signal
 from databaseControl import *
+import threading
 
 class CustomConsole(cmd.Cmd):
-    pid=0
-    pid2=0
-    pid3=0
-    db = DatabaseControl()
+    bot = Bot()
+    addPoints = AddPointsToActiveUsers()
     def do_start(self, args):
-        newpid = os.fork()
-        if newpid == 0:
-            self.pid = os.getpid()
-            self.bot = Bot(self.db)
-            self.bot.mainLoop()
-            print "CRASH GLOWNEGO BOTA"
-        else:
-            self.pid2 = os.getpid()
-            newpid = os.fork()
-            if newpid == 0:
-                self.pid3 = os.getpid()
-                addPoints = AddPointsToActiveUsers()
-                while True:
-                	addPoints.addPoints(self.db)
-                	sleep(60)
+        botThread = threading.Thread(target=self.bot.mainLoop, name='BotThread')
+        botThread.daemon = True
+        botThread.start()
+        pointsThread = threading.Thread(target=self.addPoints.addPoints,  name='PointsThread')
+        pointsThread.daemon = True
+        pointsThread.start()
+        linksThread = threading.Thread(target=self.bot.infosEvery5Minutes, name='LinksThread')
+        linksThread.daemon = True
+        linksThread.start()
 
-
-
-    def do_end(self, args):
-        os.kill(self.pid, signal.SIGKILL)
-        os.kill(self.pid2, signal.SIGKILL)
-        os.kill(self.pid3, signal.SIGKILL)
 if __name__ == '__main__':
     CustomConsole().cmdloop()
