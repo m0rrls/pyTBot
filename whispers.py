@@ -42,6 +42,11 @@ class Whisper:
         messageS = "PRIVMSG #yarakii :.w " + rec + " " + message + "\r\n"
         self.s.send(messageS)
 
+    def multiWhisper(self, tab, mess):
+        for x in tab:
+            self.Send_whisper(x, mess)
+            sleep(2)
+
     def mainLoop(self):
         while True:
             self.readbuffer = self.readbuffer + self.s.recv(1024)
@@ -80,6 +85,13 @@ class Whisper:
                                 self.s.send("PART #yarakii")
                             if command[0] == "!emote" and username == "m0rrls":
                                 self.Send_whisper(command[1], command[2])
+
+                            if command[0] == "!live" and username in ("yarakii", "m0rrls"):
+                                zbior = set()
+                                zbior.add("yarakii")
+                                zbior.add("m0rrls")
+                                zbior.add("erroreq")
+                                self.multiWhisper(zbior,"PogChamp /")
 
                         for l in parts :
                             if "End of /NAMES list" in l:
