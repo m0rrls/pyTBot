@@ -1,4 +1,4 @@
-import socket, string
+import socket, string, urllib2, json, random
 from duelists import *
 from time import *
 
@@ -6,10 +6,19 @@ class Whisper:
 
     def __init__(self):
         self.plik = open("pasy.txt", "r")
+
+        # Get random server address to connect to
+        url = "http://tmi.twitch.tv/servers?cluster=group"
+        response = urllib2.urlopen(url)
+        jdata = json.load(response)
+        chosenAdr = random.randrange(len(jdata['servers']))
+        adr = string.split(jdata['servers'][chosenAdr],":")
+
 		# Set all the variables necessary to connect to Twitch IRC
-        self.HOST = "199.9.253.58"
+        print "connectin to %s %s" % (adr[0], adr[1])
+        self.HOST = adr[0]
         self.NICK = "botherrington"
-        self.PORT = 443
+        self.PORT = int(adr[1], base=10)
         self.PASS = self.plik.read()
         self.readbuffer = ""
         self.MODT = False
@@ -23,20 +32,15 @@ class Whisper:
         #self.s.send("CAP REQ :twitch.tv/tags\r\n")
         #self.s.send("CAP REQ :twitch.tv/membership\r\n")
         sleep(1)
-        self.s.send("JOIN #yarakii\r\n") #_m0rrls_1457634425342
-        self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
+        self.s.send("JOIN #yarakii\r\n")
+        #self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
         print "inicjacja"
         sleep(2)
         self.Send_whisper("m0rrls","Inicjuje bota MrDestructoid")
 
     def Send_whisper(self, rec, message):
         messageS = "PRIVMSG #yarakii :.w " + rec + " " + message + "\r\n"
-        #messageS = "m0rrls!m0rrls@m0rrls.tmi.twitch.tv WHISPER botherrington: HeyGuys"
-        #messageS = "botherrington!botherrington@botherrington.tmi.twich.tv WHISPER m0rrls: HeyGuys"
         self.s.send(messageS)
-        #self.s.send("WHISPER m0rrls: Keepo /\r\n")
-        #self.s.send("PRIVMSG #yarakii : Kappa /\r\n")
-        print "wyslalem"
 
     def mainLoop(self):
         while True:
@@ -46,9 +50,10 @@ class Whisper:
             for line in temp:
                 print "Wiadomosc z serwera szeptow: " + line
 				# Checks whether the message is PING because its a method of Twitch to check if you're afk
-                if (line[0] == "PING"):
-                    print "PONG"
-                    self.s.send("PONG %s\r\n" % line[1])
+                if ("PING" in line):
+                    if (line == "PING :tmi.twitch.tv\r\n"):
+                        print "PONG"
+                    self.s.send("PONG :tmi.twitch.tv\r\n")
                 else:
 					# Splits the given string so we can work with it better
                     parts = string.split(line, ":")
@@ -73,6 +78,9 @@ class Whisper:
                             if message == "!quit" and username == "m0rrls": #moznaby zrobic tutaj ze jezeli user jest w tabeli "admini" i kazdy z nas moze to zrobic
                                 self.Send_whisper("m0rrls", "BYE BibleThump 7")
                                 self.s.send("PART #yarakii")
+                            if command[0] == "!emote" and username == "m0rrls":
+                                self.Send_whisper(command[1], command[2])
+
                         for l in parts :
                             if "End of /NAMES list" in l:
                                 self.MODT = True
