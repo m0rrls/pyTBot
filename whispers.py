@@ -1,6 +1,7 @@
 import socket, string, urllib2, json, random
 from duelists import *
 from time import *
+import threading
 
 class Whisper:
 
@@ -45,7 +46,7 @@ class Whisper:
     def multiWhisper(self, tab, mess):
         for x in tab:
             self.Send_whisper(x, mess)
-            sleep(2)
+            sleep(10)
 
     def mainLoop(self):
         while True:
@@ -91,11 +92,11 @@ class Whisper:
                                 zbior.add("yarakii")
                                 zbior.add("m0rrls")
                                 zbior.add("erroreq")
-                                self.multiWhisper(zbior,"PogChamp /")
+                                liveWhisperThread = threading.Thread(target=self.multiWhisper, args=(zbior, "PogChamp"), name='LiveWhisperThread')
+                                liveWhisperThread.daemon = True
+                                liveWhisperThread.start()
+
 
                         for l in parts :
                             if "End of /NAMES list" in l:
                                 self.MODT = True
-
-obj = Whisper()
-obj.mainLoop()

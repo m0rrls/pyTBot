@@ -3,12 +3,17 @@ from addPointsToActiveUsers import *
 from bot import *
 import cmd, sys, signal
 from databaseControl import *
+from whispers import *
 import threading
 
 class CustomConsole(cmd.Cmd):
+    
     bot = Bot()
     addPoints = AddPointsToActiveUsers()
+    whispers = Whisper()
+
     def do_start(self, args):
+
         botThread = threading.Thread(target=self.bot.mainLoop, name='BotThread')
         botThread.daemon = True
         botThread.start()
@@ -18,6 +23,9 @@ class CustomConsole(cmd.Cmd):
         linksThread = threading.Thread(target=self.bot.infosEvery5Minutes, name='LinksThread')
         linksThread.daemon = True
         linksThread.start()
+        whisperThread = threading.Thread(target=self.whispers.mainLoop, name='WhisperThread')
+        whisperThread.daemon = True
+        whisperThread.start()
 
 if __name__ == '__main__':
     CustomConsole().cmdloop()
