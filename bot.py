@@ -5,7 +5,7 @@ from time import *
 from multiprocessing import Pool
 
 class Bot:
-	def __init__(self):
+	def __init__(self, whbot):
 		self.plik = open("pasy.txt", "r")
 		# Set all the variables necessary to connect to Twitch IRC
 		self.HOST = "irc.twitch.tv"
@@ -22,7 +22,7 @@ class Bot:
 		self.s.send("JOIN #yarakii \r\n")
 		self.rouletteOdds = 50
 		self.duelOdds = 45
-
+		self.wbot = whbot
 
 		"""oddsy na przegrana"""
 
@@ -31,9 +31,8 @@ class Bot:
 	def Send_message(self, message):
 		self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
 
-	def Send_whisper(self, message):
-		message = "PRIVMSG #jtv/w erroreq AAA"
-		self.s.send(message)
+	def Send_whisper(self, rec, message):
+		self.wbot.Send_whisper(rec, message)
 
 	def getUserPoints(self, user):
 		points = self.db.getUserPoints(user)
@@ -62,13 +61,13 @@ class Bot:
 		self.Send_message("HE DID IT PogChamp //")
 		self.Send_message("HE DID IT PogChamp //")
 
-	def addMissplay(self):
-		self.db.addPointsToUser("missplay", 1)
+	def addMisplay(self):
+		self.db.addPointsToUser("misplay", 1)
 		self.Send_message("One more? FailFish")
 
-	def checkMissplays(self):
-		points = self.getUserPoints("missplay")
-		self.Send_message("Current missplay counter: " + str(points))
+	def checkMisplays(self):
+		points = self.getUserPoints("misplay")
+		self.Send_message("Current misplay counter: " + str(points))
 
 	def roulette(self, user, points):
 		points = int(points)
@@ -85,7 +84,7 @@ class Bot:
 			return user + " You don't have enough points FailFish"
 
 	def printCommands(self):
-		message = "Current commands: !points, !roulette <amount>, !duel <username> <amount>, !odds, !userpoints <user>, !chat, !missplay. Have fun! FeelsGoodMan"
+		message = "Current commands: !points, !roulette <amount>, !duel <username> <amount>, !odds, !userpoints <user>, !chat, !misplay. Have fun! FeelsGoodMan"
 		self.Send_message(message)
 
 	def duel(self, player1, player2, amount):
@@ -109,6 +108,13 @@ class Bot:
 		tmp = self.getUserPoints(user)
 		message = "User " + str(user) + " has " + str(tmp) + " points."
 		self.Send_message(message)
+
+	def points(self, user):
+
+		p = self.getUserPoints(user)
+		message = "Masz %s pktow Keepo" % str(p)
+		#message = username + " points = " + str(points)
+		self.Send_whisper(user, message)
 
 	def odds(self):
 		currentOdds = 100-self.rouletteOdds
@@ -145,10 +151,11 @@ class Bot:
 							command = string.split(message, " ")
 							# You can add all your plain commands here
 							if message == "!points":
-								points = self.getUserPoints(username)
-								message = ""
-								message = username + " points = " + str(points)
-								self.Send_message(message)
+								#points = self.getUserPoints(username)
+								#message = ""
+								#message = username + " points = " + str(points)
+								#self.Send_message(message)
+								self.points(username)
 							if command[0] == "!roulette":
 								self.Send_message(self.roulette(username, command[1]))
 							if command[0] == "!chat":
@@ -163,10 +170,12 @@ class Bot:
 								self.printCommands()
 							if command[0] == "!legend":
 								self.legend()
-							if command[0] == "!addmissplay" and username == "yarakii":
-								self.addMissplay()
-							if command[0] == "!missplay":
-								self.checkMissplays()
+							if command[0] == "!addmisplay" and username == "yarakii":
+								self.addMisplay()
+							if command[0] == "!misplay":
+								self.checkMisplays()
+							if command[0] == "!mariusz":
+								self.Send_whisper("m0rrls", "Kappa //")
 						for l in parts:
 							if "End of /NAMES list" in l:
 								self.MODT = True

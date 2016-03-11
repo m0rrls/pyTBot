@@ -7,10 +7,11 @@ from whispers import *
 import threading
 
 class CustomConsole(cmd.Cmd):
-    
-    bot = Bot()
-    addPoints = AddPointsToActiveUsers()
+
     whispers = Whisper()
+    bot = Bot(whispers)
+    addPoints = AddPointsToActiveUsers()
+
 
     def do_start(self, args):
 
