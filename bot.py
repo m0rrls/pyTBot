@@ -1,11 +1,11 @@
-import socket, string
+import socket, string, threading
 from databaseControl import *
 from random import randint
 from time import *
 from multiprocessing import Pool
 
 class Bot:
-	def __init__(self, whbot):
+	def __init__(self, whbot, inQ, outQ):
 		self.plik = open("pasy.txt", "r")
 		# Set all the variables necessary to connect to Twitch IRC
 		self.HOST = "irc.twitch.tv"
@@ -23,6 +23,8 @@ class Bot:
 		self.rouletteOdds = 50
 		self.duelOdds = 45
 		self.wbot = whbot
+		self.inQ = inQ
+		self.outQ = outQ
 
 		"""oddsy na przegrana"""
 
@@ -104,6 +106,54 @@ class Bot:
 			message = "One of the players dont have enough points for this duel FeelsBadMan"
 			return message
 
+#zrobic by sie nie zawiesal na duelu
+
+	def duelWh(self, p1, p2, amount):
+		pl1 = p1.lower()
+		pl2 = p2.lower()
+		if int(self.db.getUserPoints(pl1)) >= int(amount):
+			if int(self.db.getUserPoints(pl2)) >= int(amount):
+				self.outQ.put([str(pl1), str(pl2), int(amount)])
+				dTh = threading.Thread(name=str([pl1, pl2, amount]), target=self.duelWait, args=([pl1, pl2, amount]))
+				dTh.daemon = True
+				dTh.start()
+				return ""
+			else:
+				message = "Przeciwnik nie ma wystarczajaco pktow"
+				self.Send_whisper(pl1, message)
+				return ""
+		else:
+			message = "Masz za malo pkt!"
+			self.Send_whisper(pl1, message)
+			return ""
+
+	def duelWait(self, pl1, pl2, amount):
+		datab = DatabaseControl()
+		check = []
+		cond = True
+		while (cond):
+			if(len(check) > 0):
+				self.inQ.put(check)
+				check = []
+			check = self.inQ.get()
+			#print check
+			if check == [str(pl1), str(pl2), int(amount)]:
+				cond = False
+
+		rand = randint(0,99)
+		if rand<int(self.duelOdds):
+			datab.addPointsToUser(pl1, int(amount))
+			datab.addPointsToUser(pl2, int(amount)*-1)
+			message = str(pl1) + " just won duel vs " + str(pl2) + " for " + str(amount) + " points! SeemsGood"
+		else:
+			datab.addPointsToUser(pl2, int(amount))
+			datab.addPointsToUser(pl1, int(amount)*-1)
+			message = str(pl2) + " just won duel vs " + str(pl1) + " for " + str(amount) + " points! SeemsGood"
+		self.Send_message(message)
+
+
+
+
 	def userPoints(self, user):
 		tmp = self.getUserPoints(user)
 		message = "User " + str(user) + " has " + str(tmp) + " points."
@@ -164,6 +214,8 @@ class Bot:
 		 						self.odds()
 							if command[0] == "!duel" and len(command)>2 and command[2].isdigit():
 		 						self.Send_message(self.duel(username, command[1], command[2]))
+							if command[0] == "!duelwh" and len(command)>2 and command[2].isdigit():
+								self.Send_message(self.duelWh(username, command[1], command[2]))
 							if command[0] == "!userpoints" and len(command)>1:
 								self.userPoints(command[1])
 							if command[0] == "!commands":
@@ -176,6 +228,9 @@ class Bot:
 								self.checkMisplays()
 							if command[0] == "!mariusz":
 								self.Send_whisper("m0rrls", "Kappa //")
+							if command[0] == "!gibemoni" and username == "m0rrls":
+								self.db.addPointsToUser(command[1], int(command[2]))
+								#self.points(command[1])
 						for l in parts:
 							if "End of /NAMES list" in l:
 								self.MODT = True

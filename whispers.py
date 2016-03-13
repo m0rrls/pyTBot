@@ -1,12 +1,16 @@
 import socket, string, urllib2, json, random
 from duelists import *
 from time import *
-import threading
+import threading, errno
+from Queue import Queue, Empty
+
 
 class Whisper:
 
-    def __init__(self):
+    def __init__(self, inQ, outQ):
         self.plik = open("pasy.txt", "r")
+        self.inQ = inQ
+        self.outQ = outQ
 
         # Get random server address to connect to
         url = "http://tmi.twitch.tv/servers?cluster=group"
@@ -36,8 +40,9 @@ class Whisper:
         self.s.send("JOIN #yarakii\r\n")
         #self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
         print "inicjacja"
-        sleep(2)
+        sleep(1)
         self.Send_whisper("m0rrls","Inicjuje bota MrDestructoid")
+        #self.s.settimeout(3)
 
     def Send_whisper(self, rec, message):
         messageS = "PRIVMSG #yarakii :.w " + rec + " " + message + "\r\n"
@@ -50,8 +55,25 @@ class Whisper:
 
     def mainLoop(self):
         while True:
-            self.readbuffer = self.readbuffer + self.s.recv(1024)
-            temp = string.split(self.readbuffer, "\n")
+            #print "test"
+            try:
+                challenge = self.inQ.get(False)
+            except Empty:
+                challenge = []
+            if len(challenge) == 3:
+                sleep(1)
+                print "odebralem"
+                print challenge
+                mess = "Gracz %s wyzywa Cie na pojedynek o %s pkt! PogChamp Wpisz tutaj !accept by zaakceptowac" % (str(challenge[0]), str(challenge[2]))
+                self.Send_whisper(str(challenge[1]), mess)
+                #self.Send_whisper("hisechi", "TOP KEK BRO")
+            self.s.settimeout(3)
+            try:
+                self.readbuffer = self.readbuffer + self.s.recv(1024)
+                temp = string.split(self.readbuffer, "\n")
+            except socket.timeout:
+                    continue
+            self.s.settimeout(None)
             self.readbuffer = temp.pop()
             for line in temp:
                 print "Wiadomosc z serwera szeptow: " + line
@@ -78,6 +100,9 @@ class Whisper:
                             print username + ": " + message
                             command = string.split(message, " ")
 							# You can add all your plain commands here
+                            if message == "!accept":
+                                self.outQ.put(username)
+
                             if message == "!test":
                                 sleep(1)
                                 self.Send_whisper(username,"HeyGuys")
