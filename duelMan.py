@@ -56,6 +56,13 @@ class DuelMan:
             self.list.delRow(nr)
         #self.list.delUserRec(str(pl1), str(target))
 
+    def denyDuel(self, target):
+        nr = self.list.findRow(str(target))
+        print "odrzucil " + str(target)
+        if nr > 0:
+            print "usuwam " + str(self.list.getRecords()[nr])
+            self.list.delRow(nr)
+
     def mainLoop(self):
         while True:
             try:
@@ -77,6 +84,10 @@ class DuelMan:
                 self.exeDuel(acceptance)
                 sleep(1)
                 #print self.list.getRecords()
+            elif len(acceptance) > 0 and acceptance[:3] == "___" and acceptance[3:] in self.list.getTargets():
+                print "deny"
+                self.denyDuel(acceptance[3:])
+
             self.list.refresh(self.refTime)
             sleep(1)
             #print self.list.getRecords()

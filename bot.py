@@ -212,9 +212,9 @@ class Bot:
 		 						self.ruinedChat()
 							if command[0] == "!odds":
 		 						self.odds()
+							#if command[0] == "!duel" and len(command)>2 and command[2].isdigit():
+		 					#	self.Send_message(self.duel(username, command[1], command[2]))
 							if command[0] == "!duel" and len(command)>2 and command[2].isdigit():
-		 						self.Send_message(self.duel(username, command[1], command[2]))
-							if command[0] == "!duelwh" and len(command)>2 and command[2].isdigit():
 								self.Send_message(self.duelWh(username, command[1], command[2]))
 							if command[0] == "!userpoints" and len(command)>1:
 								self.userPoints(command[1])

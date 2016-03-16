@@ -64,7 +64,7 @@ class Whisper:
                 sleep(1)
                 print "odebralem"
                 print challenge
-                mess = "Gracz %s wyzywa Cie na pojedynek o %s pkt! PogChamp Wpisz tutaj !accept by zaakceptowac" % (str(challenge[0]), str(challenge[2]))
+                mess = "Gracz %s wyzywa Cie na pojedynek o %s pkt! PogChamp \t\t\tWpisz TUTAJ !accept by zaakceptowac lub !deny by odrzucic wyzwanie" % (str(challenge[0]), str(challenge[2]))
                 self.Send_whisper(str(challenge[1]), mess)
                 #self.Send_whisper("hisechi", "TOP KEK BRO")
             self.s.settimeout(3)
@@ -102,6 +102,10 @@ class Whisper:
 							# You can add all your plain commands here
                             if message == "!accept":
                                 self.outQ.put(username)
+
+                            if message == "!deny":
+                                temp = "___" + username
+                                self.outQ.put(temp)
 
                             if message == "!test":
                                 sleep(1)
