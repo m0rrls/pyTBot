@@ -45,7 +45,7 @@ class Bot:
 
 	def infosEvery5Minutes(self):
 		while(True):
-			self.Send_message("g2a.com")
+			self.Send_message("https://dubtrack.fm/join/yaraki")
 			sleep(300)
 
 	def legend(self):
@@ -86,7 +86,7 @@ class Bot:
 			return user + " You don't have enough points FailFish"
 
 	def printCommands(self):
-		message = "Current commands: !points, !roulette <amount>, !duel <username> <amount>, !odds, !userpoints <user>, !chat, !misplay. Have fun! FeelsGoodMan"
+		message = "Current commands: !points, !roulette <amount>, !duel <username> <amount>, !odds, !userpoints <user>, !chat, !misplay, !sub/!unsub Have fun! FeelsGoodMan"
 		self.Send_message(message)
 
 	def duel(self, player1, player2, amount):
@@ -152,7 +152,16 @@ class Bot:
 		self.Send_message(message)
 
 
+	def addToSubList(self, user):
+		message = "Dodano Cie do listy \"subow\" Kappa Teraz gdy rozpoczenie sie stream otrzymasz powiadomienie na whisperze! W kazdej chwili mozesz sie wypisac przez \"!unsub\""
+		res = self.subsDb.addUser(user, "subs")
+		if res == 0:
+			self.Send_whisper(user, message)
 
+	def delFromSubList(self, user):
+		message = "Uzytkownik " + user + " zostal usuniety z bazy subskrybentow FeelsBadMan"
+		self.subsDb.delUser(user, "subs")
+		self.Send_whisper(user, message)
 
 	def userPoints(self, user):
 		tmp = self.getUserPoints(user)
@@ -173,12 +182,13 @@ class Bot:
 
 	def mainLoop(self):
 		self.db = DatabaseControl()
+		self.subsDb = CustomDbCtrl("subs.db")
 		while True:
 			self.readbuffer = self.readbuffer + self.s.recv(1024)
 			temp = string.split(self.readbuffer, "\n")
 			self.readbuffer = temp.pop()
 			for line in temp:
-				print "Wiadomosc z serwera: " + line
+				#print "Wiadomosc z serwera: " + line
 				# Checks whether the message is PING because its a method of Twitch to check if you're afk
 				if (line[0] == "PING"):
 					self.s.send("PONG %s\r\n" % line[1])
@@ -231,6 +241,11 @@ class Bot:
 							if command[0] == "!gibemoni" and username == "m0rrls":
 								self.db.addPointsToUser(command[1], int(command[2]))
 								#self.points(command[1])
+							if command[0] == "!sub":
+								self.addToSubList(username)
+							if command[0] == "!unsub":
+								self.delFromSubList(username)
+
 						for l in parts:
 							if "End of /NAMES list" in l:
 								self.MODT = True

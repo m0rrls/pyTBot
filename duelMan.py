@@ -85,7 +85,7 @@ class DuelMan:
                 sleep(1)
                 #print self.list.getRecords()
             elif len(acceptance) > 0 and acceptance[:3] == "___" and acceptance[3:] in self.list.getTargets():
-                print "deny"
+                #print "deny"
                 self.denyDuel(acceptance[3:])
 
             self.list.refresh(self.refTime)

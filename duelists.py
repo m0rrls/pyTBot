@@ -5,7 +5,7 @@ from time import *
 class Duelists:
 	def __init__(self):
 		self.records = np.arange(4,)
-		print self.records
+		#print self.records
 	#Adds new duel
 	def addNewRow(self, user1, user2, pkt):
 		y = np.array([(str(user1),str(user2), datetime.datetime.now(), int(pkt))])
@@ -14,7 +14,7 @@ class Duelists:
 
 	#Removes duel
 	def delRow(self, nr):
-		print self.getRecords()[nr]
+		#print self.getRecords()[nr]
 		self.records = np.delete(self.records, nr, 0)
 
 	def getRecords(self):
@@ -56,15 +56,3 @@ class Duelists:
 					if time > M*60:
 						nr = np.where(self.records==x)
 						self.delRow(nr[0][0])
-
-"""
-obj = Duelists()
-obj.addNewRow("Kappa", "Keepo", 69)
-obj.addNewRow("KaRappa", "4Hewa", 420)
-obj.addNewRow("WTa", "KEK", 123)
-
-numerek = obj.findRow("KaRappa")
-#obj.delRow(numerek)
-print obj.getTargets()
-print obj.getRecords()[numerek][1]
-"""

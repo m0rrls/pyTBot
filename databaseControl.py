@@ -41,3 +41,42 @@ class DatabaseControl:
 			userPoints += points
 			self.addPoints(user, userPoints)
 			return "done"
+
+class CustomDbCtrl:
+	def __init__(self, plik):
+		self.db = sqlite3.connect(plik)
+		self.cursor = self.db.cursor()
+
+	def createTab(self, table):
+		command = 'CREATE TABLE ' + table + '(name VARCHAR(20) NOT NULL, data_dolacz DATE NOT NULL);'
+		self.cursor.execute(command)
+		self.db.commit()
+
+	def addUser(self, user, table):
+		tmp = self.getUsers(table)
+		taken = 0
+		for x in tmp:
+			if user in x:
+				print "ktos dodaje sie mimo, ze juz jest"
+				taken = 1
+				break
+		if taken == 0:
+			command = 'INSERT INTO ' + table + ' VALUES ( \'' + user + '\', CURRENT_TIMESTAMP);'
+			self.cursor.execute(command)
+			self.db.commit()
+		return taken
+
+	def delUser(self, user, table):
+		command = 'DELETE FROM ' + table + ' WHERE name = \'' + user + '\';'
+		self.cursor.execute(command)
+		self.db.commit()
+
+	def getUsers(self, table):
+		command = 'SELECT name FROM '+ table +';'
+		self.cursor.execute(command)
+		result = self.cursor.fetchall()
+		if result != "None":
+			tab = []
+			for x in result:
+				tab.append(x[0])
+			return tab

@@ -1,6 +1,7 @@
 import socket, string, urllib2, json, random
 from duelists import *
 from time import *
+from databaseControl import CustomDbCtrl
 import threading, errno
 from Queue import Queue, Empty
 
@@ -11,6 +12,7 @@ class Whisper:
         self.plik = open("pasy.txt", "r")
         self.inQ = inQ
         self.outQ = outQ
+        #self.subsDb = CustomDbCtrl("subs.db")
 
         # Get random server address to connect to
         url = "http://tmi.twitch.tv/servers?cluster=group"
@@ -42,6 +44,8 @@ class Whisper:
         print "inicjacja"
         sleep(1)
         self.Send_whisper("m0rrls","Inicjuje bota MrDestructoid")
+        sleep(1)
+        self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
         #self.s.settimeout(3)
 
     def Send_whisper(self, rec, message):
@@ -51,19 +55,22 @@ class Whisper:
     def multiWhisper(self, tab, mess):
         for x in tab:
             self.Send_whisper(x, mess)
-            sleep(10)
+            sleep(5)
+
+    def getSubs(self):
+        self.subsDb = CustomDbCtrl("subs.db")
+        return self.subsDb.getUsers("subs")
 
     def mainLoop(self):
         while True:
-            #print "test"
             try:
                 challenge = self.inQ.get(False)
             except Empty:
                 challenge = []
             if len(challenge) == 3:
                 sleep(1)
-                print "odebralem"
-                print challenge
+                #print "odebralem"
+                #print challenge
                 mess = "Gracz %s wyzywa Cie na pojedynek o %s pkt! PogChamp \t\t\tWpisz TUTAJ !accept by zaakceptowac lub !deny by odrzucic wyzwanie" % (str(challenge[0]), str(challenge[2]))
                 self.Send_whisper(str(challenge[1]), mess)
                 #self.Send_whisper("hisechi", "TOP KEK BRO")
@@ -76,7 +83,7 @@ class Whisper:
             self.s.settimeout(None)
             self.readbuffer = temp.pop()
             for line in temp:
-                print "Wiadomosc z serwera szeptow: " + line
+                #print "Wiadomosc z serwera szeptow: " + line
 				# Checks whether the message is PING because its a method of Twitch to check if you're afk
                 if ("PING" in line):
                     if (line == "PING :tmi.twitch.tv\r\n"):
@@ -117,11 +124,13 @@ class Whisper:
                                 self.Send_whisper(command[1], command[2])
 
                             if command[0] == "!live" and username in ("yarakii", "m0rrls"):
-                                zbior = set()
-                                zbior.add("yarakii")
-                                zbior.add("m0rrls")
-                                zbior.add("erroreq")
-                                liveWhisperThread = threading.Thread(target=self.multiWhisper, args=(zbior, "PogChamp"), name='LiveWhisperThread')
+                                zbior = self.getSubs()
+                                if message == command[0]:
+                                    mess = "Yarakii rozpoczyna stream PogChamp Zapraszamy na https://twitch.tv/yarakii"
+                                else:
+                                    mess = str(command[1:])
+
+                                liveWhisperThread = threading.Thread(target=self.multiWhisper, args=(zbior, mess), name='LiveWhisperThread')
                                 liveWhisperThread.daemon = True
                                 liveWhisperThread.start()
 
