@@ -72,8 +72,14 @@ class Bot:
 		self.Send_message("Current misplay counter: " + str(points))
 
 	def roulette(self, user, points):
-		points = int(points)
 		userPoints = int(self.getUserPoints(user))
+		if points == "all":
+			points = userPoints
+		else:
+			try:
+				points = int(points)
+			except ValueError:
+				points = 0
 		if userPoints >= points and points>0:
 			rand = randint(0,99)
 			if rand>self.rouletteOdds:
@@ -82,8 +88,10 @@ class Bot:
 			else:
 				self.db.addPointsToUser(user, points*-1)
 				return user + " just lost " + str(points) + " points FeelsBadMan"
-		else:
+		elif points != 0:
 			return user + " You don't have enough points FailFish"
+		elif points == 0:
+			return "Are u retarded, " + user + " ? MingLee"
 
 	def printCommands(self):
 		message = "Current commands: !points, !roulette <amount>, !duel <username> <amount>, !odds, !userpoints <user>, !chat, !misplay, !sub/!unsub Have fun! FeelsGoodMan"
