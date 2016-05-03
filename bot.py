@@ -3,6 +3,7 @@ from databaseControl import *
 from random import randint
 from time import *
 from multiprocessing import Pool
+from quiz import *
 
 class Bot:
 	def __init__(self, whbot, inQ, outQ):
@@ -25,6 +26,7 @@ class Bot:
 		self.wbot = whbot
 		self.inQ = inQ
 		self.outQ = outQ
+		self.emoteTries = 0
 
 		"""oddsy na przegrana"""
 
@@ -47,6 +49,13 @@ class Bot:
 		while(True):
 			self.Send_message("https://dubtrack.fm/join/yaraki")
 			sleep(300)
+
+
+	def emoteWin(self, user):
+		self.Send_message(user + " trafil emotke -> "+ self.wbot.emote +" i otrzymuje " + str(self.wbot.emotePoints) + " pkt PogChamp")
+		self.wbot.emote = ""
+		self.db.addPointsToUser(user, self.wbot.emotePoints)
+		self.emoteTries = 0
 
 	def legend(self):
 		self.Send_message("HE DID IT PogChamp //")
@@ -114,7 +123,6 @@ class Bot:
 			message = "One of the players dont have enough points for this duel FeelsBadMan"
 			return message
 
-#zrobic by sie nie zawiesal na duelu
 
 	def duelWh(self, p1, p2, amount):
 		pl1 = p1.lower()
@@ -188,10 +196,15 @@ class Bot:
 		message = "Current odds to win roulette: " + str(currentOdds) + ". Odds for winning duel if you are calling it is "+str(self.duelOdds)
 		self.Send_message(message)
 
+
 	def mainLoop(self):
 		self.db = DatabaseControl()
 		self.subsDb = CustomDbCtrl("subs.db")
 		while True:
+			if self.wbot.cmd != "":
+				self.Send_message(self.wbot.cmd)
+				self.wbot.cmd = ""
+
 			self.readbuffer = self.readbuffer + self.s.recv(1024)
 			temp = string.split(self.readbuffer, "\n")
 			self.readbuffer = temp.pop()
@@ -215,14 +228,12 @@ class Bot:
 
 						# Only works after twitch is done announcing stuff (MODT = Message of the day)
 						if self.MODT:
-							print username + ": " + message
+							#print username + ": " + message
 							command = string.split(message, " ")
 							# You can add all your plain commands here
+							if self.wbot.emote != "" and message == self.wbot.emote:
+								self.emoteWin(username)
 							if message == "!points":
-								#points = self.getUserPoints(username)
-								#message = ""
-								#message = username + " points = " + str(points)
-								#self.Send_message(message)
 								self.points(username)
 							if command[0] == "!roulette":
 								self.Send_message(self.roulette(username, command[1]))
@@ -230,8 +241,6 @@ class Bot:
 		 						self.ruinedChat()
 							if command[0] == "!odds":
 		 						self.odds()
-							#if command[0] == "!duel" and len(command)>2 and command[2].isdigit():
-		 					#	self.Send_message(self.duel(username, command[1], command[2]))
 							if command[0] == "!duel" and len(command)>2 and command[2].isdigit():
 								self.Send_message(self.duelWh(username, command[1], command[2]))
 							if command[0] == "!userpoints" and len(command)>1:
@@ -253,6 +262,14 @@ class Bot:
 								self.addToSubList(username)
 							if command[0] == "!unsub":
 								self.delFromSubList(username)
+
+							#points to win in emote quiz
+							if self.wbot.emotePoints > 0:
+								self.wbot.emotePoints = self.wbot.emotePoints - 1
+								self.emoteTries = self.emoteTries + 1
+
+								if self.emoteTries % 10 == 0:
+									self.Send_message("Podpowiedz emotki: "+self.wbot.emote[:int(self.emoteTries/10)] + "...")
 
 						for l in parts:
 							if "End of /NAMES list" in l:

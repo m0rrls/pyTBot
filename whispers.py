@@ -5,6 +5,7 @@ from databaseControl import CustomDbCtrl
 import threading, errno
 from Queue import Queue, Empty
 from sgist import *
+from quiz import *
 
 class Whisper:
 
@@ -45,8 +46,11 @@ class Whisper:
         sleep(1)
         self.Send_whisper("m0rrls","Inicjuje bota MrDestructoid")
         sleep(1)
-        self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
+        #self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
         #self.s.settimeout(3)
+        self.cmd = ""
+        self.emote = ""
+        self.emotePoints = 0
 
     def Send_whisper(self, rec, message):
         messageS = "PRIVMSG #yarakii :.w " + rec + " " + message + "\r\n"
@@ -64,6 +68,14 @@ class Whisper:
     def getInfo(self):
         self.subsDb = CustomDbCtrl("subs.db")
         return self.subsDb.getSubInfo("subs")
+
+	def emoteQuiz(self, amount):
+		emote = emotes.rand()
+		print emote
+		self.emote = emote
+		self.emotePoints = int(amount) + 1
+		self.cmd = "Rozpoczynam EmoteQuiz! Do wygrania nawet " + amount + " pkt"
+
 
     def mainLoop(self):
         while True:
@@ -132,7 +144,7 @@ class Whisper:
                                 if message == command[0]:
                                     mess = "Yarakii rozpoczyna stream PogChamp Zapraszamy na https://twitch.tv/yarakii"
                                 else:
-                                    mess = str(command[1:])
+                                    mess = " ".join(command[1:])
 
                                 liveWhisperThread = threading.Thread(target=self.multiWhisper, args=(zbior, mess), name='LiveWhisperThread')
                                 liveWhisperThread.daemon = True
@@ -143,6 +155,18 @@ class Whisper:
                                 zbior = zbior + resToStr(self.getInfo())
                                 link = SGist().postAnon("yarakii subs","list.txt",zbior)
                                 self.Send_whisper(username, "Link do listy subow: "+link)
+
+                            if command[0] == "!cmd" and username == "m0rrls":
+                                self.cmd = " ".join(command[1:])
+                                #print "CMD: " + self.cmd
+
+                            if command[0] == "!eq" and username == "m0rrls":
+								#self.emoteQuiz(command[1])
+                                emote = emotes.rand()
+                                print emote
+                                self.emote = emote
+                                self.emotePoints = int(command[1]) + 1
+                                self.cmd = "Rozpoczynam EmoteQuiz! Do wygrania nawet " + command[1] + " pkt"
 
                         for l in parts :
                             if "End of /NAMES list" in l:
