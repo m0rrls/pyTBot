@@ -4,7 +4,7 @@ from time import *
 from databaseControl import CustomDbCtrl
 import threading, errno
 from Queue import Queue, Empty
-
+from sgist import *
 
 class Whisper:
 
@@ -60,6 +60,10 @@ class Whisper:
     def getSubs(self):
         self.subsDb = CustomDbCtrl("subs.db")
         return self.subsDb.getUsers("subs")
+
+    def getInfo(self):
+        self.subsDb = CustomDbCtrl("subs.db")
+        return self.subsDb.getSubInfo("subs")
 
     def mainLoop(self):
         while True:
@@ -134,6 +138,11 @@ class Whisper:
                                 liveWhisperThread.daemon = True
                                 liveWhisperThread.start()
 
+                            if command[0] == "!subs":
+                                zbior = "login | czas subowania (w dniach)\n----------------------------------\n"
+                                zbior = zbior + resToStr(self.getInfo())
+                                link = SGist().postAnon("yarakii subs","list.txt",zbior)
+                                self.Send_whisper(username, "Link do listy subow: "+link)
 
                         for l in parts :
                             if "End of /NAMES list" in l:

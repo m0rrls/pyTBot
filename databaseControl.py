@@ -80,3 +80,10 @@ class CustomDbCtrl:
 			for x in result:
 				tab.append(x[0])
 			return tab
+
+	def getSubInfo(self, table):
+		command = 'SELECT name, julianday(\'now\') - julianday(data_dolacz) AS \'sub_time\' FROM '+ table +' ORDER BY sub_time DESC;'
+		self.cursor.execute(command)
+		result = self.cursor.fetchall()
+		if result != "None":
+			return result
