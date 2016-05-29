@@ -1,4 +1,4 @@
-import socket, string, threading
+import socket, string, threading, requests, json, urlparse
 from databaseControl import *
 from random import randint
 from time import *
@@ -185,7 +185,6 @@ class Bot:
 		self.Send_message(message)
 
 	def points(self, user):
-
 		p = self.getUserPoints(user)
 		message = "Masz %s pktow Keepo" % str(p)
 		#message = username + " points = " + str(points)
@@ -196,6 +195,16 @@ class Bot:
 		message = "Current odds to win roulette: " + str(currentOdds) + ". Odds for winning duel if you are calling it is "+str(self.duelOdds)
 		self.Send_message(message)
 
+	def addSongToList(self, url):
+		url_data = urlparse.urlparse(url)
+		query = urlparse.parse_qs(url_data.query)
+		vid_id = str(query['v'][0])
+		json_data = json.dumps({'vid_id':vid_id,'id':"123"})
+		print str(json_data)
+		cafile = 'cacert.pem' # http://curl.haxx.se/ca/cacert.pem
+		r = requests.post("http://rest.learncode.academy/api/yarakii/playlists", data = {'vid_id':vid_id,'id':123}, verify = cafile)
+		print r.status_code
+		print r.text
 
 	def mainLoop(self):
 		self.db = DatabaseControl()
@@ -219,7 +228,8 @@ class Bot:
 					if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
 						try:
 							# Sets the message variable to the actual message sent
-							message = parts[2][:len(parts[2]) - 1]
+							message = ":".join([str(parts[2]),":".join(parts[3:])])
+							#print message
 						except:
 							message = ""
 						# Sets the username variable to the actual username
@@ -262,6 +272,11 @@ class Bot:
 								self.addToSubList(username)
 							if command[0] == "!unsub":
 								self.delFromSubList(username)
+							if command[0] == "!song":
+								#print command[1]
+								if len(command) == 2:
+									command[1] = command[1][:-1]
+								self.addSongToList(command[1])
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:
