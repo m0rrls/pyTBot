@@ -200,14 +200,20 @@ class Bot:
 	def addSongToList(self, url, username):
 		url_data = urlparse.urlparse(url)
 		query = urlparse.parse_qs(url_data.query)
-		vid_id = str(query['v'][0])
-		title = self.getVidDesc(vid_id)['title']
-		json_data = {"vid_id":vid_id,'title':title,"sender":username,'id':"123"}
-		cafile = 'cacert.pem' # http://curl.haxx.se/ca/cacert.pem
-		r = requests.post("http://rest.learncode.academy/api/yarakii/playlists/", data = json_data, verify = cafile)
-		if (r.status_code == 200):
-			self.Send_message(username + " dodal utwor \""+title+"\" do playlisty")
-
+		try:
+			vid_id = str(query['v'][0])
+			print "adding song id: " + vid_id
+			title = self.getVidDesc(vid_id)['title']
+			if title != '':
+				json_data = {"vid_id":vid_id,'title':title,"sender":username,'id':"123"}
+				cafile = 'cacert.pem' # http://curl.haxx.se/ca/cacert.pem
+				r = requests.post("http://rest.learncode.academy/api/yarakii/playlists/", data = json_data, verify = cafile)
+				if (r.status_code == 200):
+					self.Send_message(username + " dodal utwor \""+title+"\" do playlisty")
+			else:
+				self.Send_message("nice link, bro BrokeBack")
+		except KeyError:
+			self.Send_message("NOT VALID VIDEO MrDestructoid")
 
 	def getVidDesc(self,vid_id):
 	    url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id='+vid_id+'&key='+self.youtubeAPIkey
@@ -219,6 +225,8 @@ class Bot:
 	        return {'title':title, 'channel':author}
 	    except KeyError:
 	        return {'title':'','channel':''}
+	    except IndexError:
+	    	return {'title':'','channel':''}
 
 
 	def mainLoop(self):
@@ -252,11 +260,13 @@ class Bot:
 
 						# Only works after twitch is done announcing stuff (MODT = Message of the day)
 						if self.MODT:
-							#print username + ": " + message
+							print username + ": " + message
+							
 							command = string.split(message[:-2], " ")
+							#print str(command)
 
 							# You can add all your plain commands here
-							if self.wbot.emote != "" and message == self.wbot.emote:
+							if self.wbot.emote != "" and command[0] == self.wbot.emote:
 								self.emoteWin(username)
 							if command[0] == "!points":
 								self.points(username)
@@ -288,10 +298,8 @@ class Bot:
 							if command[0] == "!unsub":
 								self.delFromSubList(username)
 							if command[0] == "!song":
-								#print command[1]
-								if len(command) == 2:
-									command[1] = command[1][:-1]
-								self.addSongToList(command[1],username)
+								url = str(string.split(message[:-1], " ")[1])
+								self.addSongToList(url,username)
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:

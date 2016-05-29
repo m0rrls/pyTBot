@@ -163,7 +163,7 @@ class Whisper:
                             if command[0] == "!eq" and username == "m0rrls":
 								#self.emoteQuiz(command[1])
                                 emote = emotes.rand()
-                                print emote
+                                print str(emote)
                                 self.emote = emote
                                 self.emotePoints = int(command[1]) + 1
                                 self.cmd = "Rozpoczynam EmoteQuiz! Do wygrania nawet " + command[1] + " pkt"
