@@ -7,12 +7,13 @@ from quiz import *
 
 class Bot:
 	def __init__(self, whbot, inQ, outQ):
-		self.plik = open("pasy.txt", "r")
+		self.passFile = open("pasy.txt", "r")
+		self.ytAPIFile = open('ytKey.txt', 'r')
 		# Set all the variables necessary to connect to Twitch IRC
 		self.HOST = "irc.twitch.tv"
 		self.NICK = "botherrington"
 		self.PORT = 6667
-		self.PASS = self.plik.read()
+		self.PASS = self.passFile.read()
 		self.readbuffer = ""
 		self.MODT = False
 		# Connecting to Twitch IRC by passing credentials and joining a certain channel
@@ -27,6 +28,7 @@ class Bot:
 		self.inQ = inQ
 		self.outQ = outQ
 		self.emoteTries = 0
+		self.youtubeAPIkey = self.ytAPIFile.read()
 
 		"""oddsy na przegrana"""
 
@@ -195,16 +197,29 @@ class Bot:
 		message = "Current odds to win roulette: " + str(currentOdds) + ". Odds for winning duel if you are calling it is "+str(self.duelOdds)
 		self.Send_message(message)
 
-	def addSongToList(self, url):
+	def addSongToList(self, url, username):
 		url_data = urlparse.urlparse(url)
 		query = urlparse.parse_qs(url_data.query)
 		vid_id = str(query['v'][0])
-		json_data = json.dumps({'vid_id':vid_id,'id':"123"})
-		print str(json_data)
+		title = self.getVidDesc(vid_id)['title']
+		json_data = {"vid_id":vid_id,'title':title,"sender":username,'id':"123"}
 		cafile = 'cacert.pem' # http://curl.haxx.se/ca/cacert.pem
-		r = requests.post("http://rest.learncode.academy/api/yarakii/playlists", data = {'vid_id':vid_id,'id':123}, verify = cafile)
-		print r.status_code
-		print r.text
+		r = requests.post("http://rest.learncode.academy/api/yarakii/playlists/", data = json_data, verify = cafile)
+		if (r.status_code == 200):
+			self.Send_message(username + " dodal utwor \""+title+"\" do playlisty")
+
+
+	def getVidDesc(self,vid_id):
+	    url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id='+vid_id+'&key='+self.youtubeAPIkey
+	    r = requests.get(url)
+	    data = r.json()
+	    try:
+	        title = data['items'][0]['snippet']['title']
+	        author = data['items'][0]['snippet']['channelTitle']
+	        return {'title':title, 'channel':author}
+	    except KeyError:
+	        return {'title':'','channel':''}
+
 
 	def mainLoop(self):
 		self.db = DatabaseControl()
@@ -229,7 +244,6 @@ class Bot:
 						try:
 							# Sets the message variable to the actual message sent
 							message = ":".join([str(parts[2]),":".join(parts[3:])])
-							#print message
 						except:
 							message = ""
 						# Sets the username variable to the actual username
@@ -239,11 +253,12 @@ class Bot:
 						# Only works after twitch is done announcing stuff (MODT = Message of the day)
 						if self.MODT:
 							#print username + ": " + message
-							command = string.split(message, " ")
+							command = string.split(message[:-2], " ")
+
 							# You can add all your plain commands here
 							if self.wbot.emote != "" and message == self.wbot.emote:
 								self.emoteWin(username)
-							if message == "!points":
+							if command[0] == "!points":
 								self.points(username)
 							if command[0] == "!roulette":
 								self.Send_message(self.roulette(username, command[1]))
@@ -276,7 +291,7 @@ class Bot:
 								#print command[1]
 								if len(command) == 2:
 									command[1] = command[1][:-1]
-								self.addSongToList(command[1])
+								self.addSongToList(command[1],username)
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:
