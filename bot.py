@@ -40,7 +40,7 @@ class Bot:
 		except UnicodeEncodeError:
 			message = ''.join([i if ord(i) < 128 else ' ' for i in message])
 			self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
-			
+
 
 	def Send_whisper(self, rec, message):
 		self.wbot.Send_whisper(rec, message)
@@ -54,8 +54,10 @@ class Bot:
 
 	def infosEvery5Minutes(self):
 		while(True):
-			self.Send_message("https://dubtrack.fm/join/yaraki")
+			self.Send_message("Mozesz dodac utwor do playlisty z yt poprzez !songrequest \"link\"")
+			#self.Send_message("https://dubtrack.fm/join/yaraki")
 			sleep(300)
+			self.Send_message("Jezeli chcesz byc powiadamiany o rozpoczeciu streama \"zasubuj\" wpisujac !sub Kappa")
 
 
 	def emoteWin(self, user):
@@ -210,9 +212,9 @@ class Bot:
 			print "adding song id: " + vid_id
 			title = self.getVidDesc(vid_id)['title']
 			if title != '':
-				json_data = {"vid_id":vid_id,'title':title,"sender":username,'id':"123"}
+				json_data = {"YTId":vid_id,'title':title,'requestor':username}
 				cafile = 'cacert.pem' # http://curl.haxx.se/ca/cacert.pem
-				r = requests.post("http://rest.learncode.academy/api/yarakii/playlists/", data = json_data, verify = cafile)
+				r = requests.post("http://yarakitwitch.azurewebsites.net/Videos/Create", data = json_data, verify = cafile)
 				if (r.status_code == 200):
 					self.Send_message(username + " dodal utwor \""+title+"\" do playlisty")
 			else:
@@ -232,6 +234,14 @@ class Bot:
 	        return {'title':'','channel':''}
 	    except IndexError:
 	    	return {'title':'','channel':''}
+
+	def getPlayingSong(self):
+		print "pobieram aktualnie grana piosenke"
+		url = 'http://yarakitwitch.azurewebsites.net/Videos/ActualId'
+		r = requests.get(url)
+		data = r.json()
+		title = self.getVidDesc(data['vidId'])['title']
+		self.Send_message("Aktualny utwor to \"{0}\" link: http://youtube.com/watch?v={1}".format(title, data['vidId']))
 
 
 	def mainLoop(self):
@@ -266,7 +276,7 @@ class Bot:
 						# Only works after twitch is done announcing stuff (MODT = Message of the day)
 						if self.MODT:
 							print username + ": " + message
-							
+
 							command = string.split(message[:-2], " ")
 							#print str(command)
 
@@ -302,12 +312,14 @@ class Bot:
 								self.addToSubList(username)
 							if command[0] == "!unsub":
 								self.delFromSubList(username)
-							if command[0] == "!song" or command[0] == "!sr" or command[0] == "!songrequest":
+							if command[0] == "!sr" or command[0] == "!songrequest":
 								url = str(string.split(message[:-1], " ")[1])
 								if url.find("youtube.com") >= 0:
 									self.addSongToList(url,username)
 								else:
 									self.Send_message(username+" musisz podac link do youtube")
+							if command[0] == "!song":
+								self.getPlayingSong()
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:

@@ -33,9 +33,9 @@ class CustomConsole(cmd.Cmd):
         pointsThread.daemon = True
         pointsThread.start()
 
-        #linksThread = threading.Thread(target=self.bot.infosEvery5Minutes, name='LinksThread')
-        #linksThread.daemon = True
-        #linksThread.start()
+        linksThread = threading.Thread(target=self.bot.infosEvery5Minutes, name='LinksThread')
+        linksThread.daemon = True
+        linksThread.start()
 
         whisperThread = threading.Thread(target=self.whispers.mainLoop, name='WhisperThread')
         whisperThread.daemon = True
