@@ -35,7 +35,12 @@ class Bot:
 
 	# Method for sending a message
 	def Send_message(self, message):
-		self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
+		try:
+			self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
+		except UnicodeEncodeError:
+			message = ''.join([i if ord(i) < 128 else ' ' for i in message])
+			self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
+			
 
 	def Send_whisper(self, rec, message):
 		self.wbot.Send_whisper(rec, message)
@@ -297,9 +302,12 @@ class Bot:
 								self.addToSubList(username)
 							if command[0] == "!unsub":
 								self.delFromSubList(username)
-							if command[0] == "!song":
+							if command[0] == "!song" or command[0] == "!sr" or command[0] == "!songrequest":
 								url = str(string.split(message[:-1], " ")[1])
-								self.addSongToList(url,username)
+								if url.find("youtube.com") >= 0:
+									self.addSongToList(url,username)
+								else:
+									self.Send_message(username+" musisz podac link do youtube")
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:

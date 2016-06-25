@@ -41,7 +41,6 @@ class Whisper:
         #self.s.send("CAP REQ :twitch.tv/membership\r\n")
         sleep(1)
         self.s.send("JOIN #yarakii\r\n")
-        #self.Send_whisper("yarakii","Inicjuje bota MrDestructoid")
         print "inicjacja"
         sleep(1)
         self.Send_whisper("m0rrls","Inicjuje bota MrDestructoid")
