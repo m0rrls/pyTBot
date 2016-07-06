@@ -5,6 +5,7 @@ import cmd, sys, signal
 from databaseControl import *
 from whispers import *
 from duelMan import *
+from pointsUpdater import *
 import threading
 
 fromChall = Queue()
@@ -16,12 +17,12 @@ class CustomConsole(cmd.Cmd):
 
 
 
-
+    
     whispers = Whisper(toTargets, response)
     bot = Bot(whispers, allow, fromChall)
     addPoints = AddPointsToActiveUsers()
     duelMan = DuelMan(5, whispers, fromChall, toTargets, allow, response)
-
+    updater = pointsUpdater()
 
     def do_start(self, args):
 
@@ -44,6 +45,10 @@ class CustomConsole(cmd.Cmd):
         duelsThread = threading.Thread(target=self.duelMan.mainLoop, name="DuelsThread")
         duelsThread.daemon = True
         duelsThread.start()
+
+        updaterThread = threading.Thread(target=self.updater.loop, name="UpdaterThread")
+        updaterThread.daemon = True
+        updaterThread.start()
 
 
 if __name__ == '__main__':

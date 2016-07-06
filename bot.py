@@ -65,6 +65,7 @@ class Bot:
 		self.wbot.emote = ""
 		self.db.addPointsToUser(user, self.wbot.emotePoints)
 		self.emoteTries = 0
+		self.wbot.emotePoints = 0
 
 	def legend(self):
 		self.Send_message("HE DID IT PogChamp //")
@@ -286,7 +287,13 @@ class Bot:
 							if command[0] == "!points":
 								self.points(username)
 							if command[0] == "!roulette":
-								self.Send_message(self.roulette(username, command[1]))
+								try:
+									if command[1] > 0:
+										self.Send_message(self.roulette(username, command[1]))
+									else:
+										self.Send_message(username+" nice idea BrokeBack")
+								except IndexError:
+									self.Send_message(username+" all in? PogChamp")
 							if command[0] == "!chat":
 		 						self.ruinedChat()
 							if command[0] == "!odds":
@@ -320,6 +327,8 @@ class Bot:
 									self.Send_message(username+" musisz podac link do youtube")
 							if command[0] == "!song":
 								self.getPlayingSong()
+							if command[0] == "!playlist":
+								self.Send_message("Playlista: http://tiny.cc/yarakii")
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:

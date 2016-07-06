@@ -20,6 +20,16 @@ class DatabaseControl:
 				resultOnlyNumbers = resultOnlyNumbers + i
 		return resultOnlyNumbers
 
+	def getUsers(self):
+		command = 'SELECT nick, points FROM points;'
+		self.cursor.execute(command)
+		result = self.cursor.fetchall()
+		if result != "None":
+			tab = []
+			for x in result:
+				tab.append(x)
+			return tab
+
 	def addUser(self, user):
 		command = 'INSERT INTO POINTS VALUES (\'' + user + '\', 0);'
 		self.cursor.execute(command)
@@ -80,6 +90,13 @@ class CustomDbCtrl:
 			for x in result:
 				tab.append(x[0])
 			return tab
+			
+	def getAll(self, table):
+		command = 'SELECT * FROM ' + table + ';';
+		self.cursor.execute(command)
+		result = self.cursor.fetchall()
+		if result != "None":
+			return result
 
 	def getSubInfo(self, table):
 		command = 'SELECT name, julianday(\'now\') - julianday(data_dolacz) AS \'sub_time\' FROM '+ table +' ORDER BY sub_time DESC;'
@@ -87,3 +104,12 @@ class CustomDbCtrl:
 		result = self.cursor.fetchall()
 		if result != "None":
 			return result
+
+	def getUser(self, table, username):
+		command = 'SELECT name, data_dolacz FROM '+ table +' WHERE name = \'' + username + '\';'
+		self.cursor.execute(command)
+		result = self.cursor.fetchone()
+		if result != "None":
+			return result
+		else:
+			return None
