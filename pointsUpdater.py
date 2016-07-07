@@ -24,8 +24,8 @@ class pointsUpdater:
                 r2 = requests.post(self.updateURL+str(info_data['id']), data = json_data)
                 if r2.status_code != 200:
                     print "nie udalo sie dodac lub zaktualizowac danych dla " + user[0]
-                else:
-                    print "update " + user[0]
+                #else:
+                #    print "update " + user[0]
                     
     def loop(self):
         self.points = DatabaseControl()

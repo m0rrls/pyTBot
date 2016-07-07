@@ -29,7 +29,7 @@ class Bot:
 		self.outQ = outQ
 		self.emoteTries = 0
 		self.youtubeAPIkey = self.ytAPIFile.read()
-
+		self.soundBoard = ['spank','ddf', 'fisting', 'fuckvan', 'fuckyou', 'sodeep', 'ah3', 'takeitboy']
 		"""oddsy na przegrana"""
 
 
@@ -56,8 +56,9 @@ class Bot:
 		while(True):
 			self.Send_message("Mozesz dodac utwor do playlisty z yt poprzez !songrequest \"link\"")
 			#self.Send_message("https://dubtrack.fm/join/yaraki")
-			sleep(300)
+			sleep(180)
 			self.Send_message("Jezeli chcesz byc powiadamiany o rozpoczeciu streama \"zasubuj\" wpisujac !sub Kappa")
+			sleep(180)
 
 
 	def emoteWin(self, user):
@@ -244,6 +245,15 @@ class Bot:
 		title = self.getVidDesc(data['vidId'])['title']
 		self.Send_message("Aktualny utwor to \"{0}\" link: http://youtube.com/watch?v={1}".format(title, data['vidId']))
 
+	def playSound(self, user, sound):
+		print "playing sound " + sound
+		if sound in self.soundBoard:
+			json_data = {"sound_id":self.soundBoard.index(sound)}
+			r = requests.post("http://rest.learncode.academy/api/gachi/sounds", data = json_data)
+			if r.status_code == 200:
+				self.Send_whisper(user, "Odtworzono twoj dzwiek: " + sound)
+		else:
+			self.Send_whisper(user, "Dostepne dzwieki to " + str(self.soundBoard))
 
 	def mainLoop(self):
 		self.db = DatabaseControl()
@@ -319,7 +329,7 @@ class Bot:
 								self.addToSubList(username)
 							if command[0] == "!unsub":
 								self.delFromSubList(username)
-							if command[0] == "!sr" or command[0] == "!songrequest":
+							if command[0] == "!sr" or command[0] == "!songrequest" and len(command)>1:
 								url = str(string.split(message[:-1], " ")[1])
 								if url.find("youtube.com") >= 0:
 									self.addSongToList(url,username)
@@ -329,6 +339,8 @@ class Bot:
 								self.getPlayingSong()
 							if command[0] == "!playlist":
 								self.Send_message("Playlista: http://tiny.cc/yarakii")
+							if command[0] == "!$playsound" and len(command)>1:
+								self.playSound(username, command[1])
 
 							#points to win in emote quiz
 							if self.wbot.emotePoints > 0:
