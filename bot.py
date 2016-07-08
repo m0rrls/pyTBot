@@ -9,6 +9,7 @@ class Bot:
 	def __init__(self, whbot, inQ, outQ):
 		self.passFile = open("pasy.txt", "r")
 		self.ytAPIFile = open('ytKey.txt', 'r')
+		self.soundNames = open('soundNames', 'r')
 		# Set all the variables necessary to connect to Twitch IRC
 		self.HOST = "irc.twitch.tv"
 		self.NICK = "botherrington"
@@ -29,7 +30,7 @@ class Bot:
 		self.outQ = outQ
 		self.emoteTries = 0
 		self.youtubeAPIkey = self.ytAPIFile.read()
-		self.soundBoard = ['spank','ddf', 'fisting', 'fuckvan', 'fuckyou', 'sodeep', 'ah3', 'takeitboy']
+		self.soundBoard = self.soundNames.readlines();
 		"""oddsy na przegrana"""
 
 
@@ -40,7 +41,7 @@ class Bot:
 		except UnicodeEncodeError:
 			message = ''.join([i if ord(i) < 128 else ' ' for i in message])
 			self.s.send("PRIVMSG #yarakii :" + message + "\r\n")
-
+		
 
 	def Send_whisper(self, rec, message):
 		self.wbot.Send_whisper(rec, message)
@@ -243,17 +244,18 @@ class Bot:
 		r = requests.get(url)
 		data = r.json()
 		title = self.getVidDesc(data['vidId'])['title']
+		title = ''.join([i if ord(i) < 128 else ' ' for i in title])
 		self.Send_message("Aktualny utwor to \"{0}\" link: http://youtube.com/watch?v={1}".format(title, data['vidId']))
 
 	def playSound(self, user, sound):
 		print "playing sound " + sound
-		if sound in self.soundBoard:
-			json_data = {"sound_id":self.soundBoard.index(sound)}
+		if sound+'\n' in self.soundBoard:
+			json_data = {"sound_id":self.soundBoard.index(sound+'\n')}
 			r = requests.post("http://rest.learncode.academy/api/gachi/sounds", data = json_data)
 			if r.status_code == 200:
 				self.Send_whisper(user, "Odtworzono twoj dzwiek: " + sound)
 		else:
-			self.Send_whisper(user, "Dostepne dzwieki to " + str(self.soundBoard))
+			self.Send_whisper(user, "Dostepne dzwieki sa na http://tiny.cc/yarSounds")
 
 	def mainLoop(self):
 		self.db = DatabaseControl()
